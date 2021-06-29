@@ -15,5 +15,4 @@ public interface UserDao {
 
     boolean create(String username, String password);
 
-    BigDecimal getBalance(String username);
 }
