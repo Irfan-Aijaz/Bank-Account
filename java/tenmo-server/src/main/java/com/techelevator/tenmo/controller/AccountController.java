@@ -1,34 +1,42 @@
 package com.techelevator.tenmo.controller;
 
-import com.techelevator.tenmo.dao.BalanceDao;
+import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.security.jwt.TokenProvider;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
+@PreAuthorize("isAuthenticated")
 public class AccountController {
 
-//    private final TokenProvider tokenProvider;
+    //    private final TokenProvider tokenProvider;
 //    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private BalanceDao balanceDao;
+    private AccountDao accountDao;
+    private UserDao userDao;
+
+    public AccountController(UserDao userDao, AccountDao accountDao) {
+        this.userDao = userDao;
+        this.accountDao = accountDao;
+    }
 
     @ResponseStatus(HttpStatus.FOUND)
     @RequestMapping(value = "/account/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance (@RequestBody String userName) {
-        return balanceDao.getBalance(userName);
+    public BigDecimal getBalance(Principal principal) {
+        String loggedInUserName = principal.getName();
+        int loggedInUserId = userDao.findIdByUsername(loggedInUserName);
+        return accountDao.getBalanceForUserId(loggedInUserId);
     }
 
 
     @ResponseStatus(HttpStatus.FOUND)
     @RequestMapping(value = "/account", method = RequestMethod.GET)
-    public List<Integer> listAllUsers () {
-        return balanceDao.listAll();
+    public List<Integer> listAllUsers() {
+        return accountDao.listAll();
     }
 
 }

@@ -76,7 +76,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		{
 //			currentUser = authenticationService.login(credentials);
 			try {
-				accountService.viewCurrentBalance(currentUser.getUser());
+				accountService.viewCurrentBalance(currentUser.getToken());
 				System.out.println("Registration successful. You can now login.");
 			} catch(AuthenticationServiceException e) {
 				System.out.println("REGISTRATION ERROR: "+e.getMessage());
