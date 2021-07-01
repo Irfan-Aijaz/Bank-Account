@@ -2,19 +2,20 @@ package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
 
-public class Balance {
+public class Account {
+
 
     private BigDecimal amount;
 
-    public Balance(BigDecimal amount) {
+    public Account(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public Balance() {
+    public Account() {
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
     // increase

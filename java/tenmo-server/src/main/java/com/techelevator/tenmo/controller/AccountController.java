@@ -14,7 +14,7 @@ import java.util.List;
 @PreAuthorize("isAuthenticated")
 public class AccountController {
 
-    //    private final TokenProvider tokenProvider;
+//    private final TokenProvider tokenProvider;
 //    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private AccountDao accountDao;
     private UserDao userDao;
@@ -34,9 +34,10 @@ public class AccountController {
 
 
     @ResponseStatus(HttpStatus.FOUND)
-    @RequestMapping(value = "/account", method = RequestMethod.GET)
+    @RequestMapping(value = "/account/users", method = RequestMethod.GET)
     public List<Integer> listAllUsers() {
-        return accountDao.listAll();
+        return accountDao.listAllUserIds();
     }
+
 
 }

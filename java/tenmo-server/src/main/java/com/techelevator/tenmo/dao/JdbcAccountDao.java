@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -30,8 +31,8 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Integer> listAll() {
-        List<Integer> allUsers = new ArrayList<>();
+    public List<Integer> listAllUserIds() {
+        List<Integer> allUsers = new ArrayList<Integer>();
         String sql = "SELECT user_id FROM accounts;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
@@ -40,13 +41,6 @@ public class JdbcAccountDao implements AccountDao {
 
         return allUsers;
     }
-//    //@Override
-//    /public int createTransferId (int userIdFrom, int userIdTo, BigDecimal transferAmount){
-//        String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
-//                "VALUES (2, 2, ?, ?, ?)" +
-//                "WHERE (SELECT balance FROM accounts WHERE user_id = ? AND balance > ?)";
-//    }
-
 
 
     private int mapRowToAccount(SqlRowSet s) {
