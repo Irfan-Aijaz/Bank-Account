@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -31,19 +33,35 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Integer> listAllUserIds() {
-        List<Integer> allUsers = new ArrayList<Integer>();
-        String sql = "SELECT user_id FROM accounts;";
+    public List<String> listAllUserNames() {
+        List<String> allUsers = new ArrayList<String>();
+        String sql = "SELECT username FROM users;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
-            allUsers.add(mapRowToAccount(results));
+            allUsers.add(results.getString("username"));
         }
 
         return allUsers;
     }
 
+    @Override
+    public Account getAccountByUserId (int userId) {
+        Account account = new Account();
+        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE userid = ?;";
+        SqlRowSet username = jdbcTemplate.queryForRowSet(sql, userId);
+        if (username.next()) {
+            account = mapRowToAccount(username);
+        }
+        return account;
+    }
 
-    private int mapRowToAccount(SqlRowSet s) {
-        return s.getInt("user_id");
+
+    private Account mapRowToAccount(SqlRowSet s) {
+        Account account = new Account();
+        account.setAccountId(s.getInt("account_id"));
+        account.setUserId(s.getInt("user_id"));
+        account.setAmount(s.getBigDecimal("balance"));
+
+        return account;
     }
 }

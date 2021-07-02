@@ -53,14 +53,14 @@ public class App {
             String choice = (String) console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
             if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
                 viewCurrentBalance();
-            } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
-                viewTransferHistory();
-            } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-                viewPendingRequests();
             } else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
                 sendBucks();
+            } else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
+                viewTransferHistory();
             } else if (MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
                 requestBucks();
+            } else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
+                viewPendingRequests();
             } else if (MAIN_MENU_OPTION_LOGIN.equals(choice)) {
                 login();
             } else {
@@ -70,47 +70,42 @@ public class App {
         }
     }
 
+
     private void viewCurrentBalance() {
         // TODO Auto-generated method stub
-        while (isAuthenticated()) //will keep looping until user is registered
-        {
-//			currentUser = authenticationService.login(credentials);
-            try {
-                accountService.viewCurrentBalance(currentUser.getToken());
-                System.out.println("Registration successful. You can now login.");
-            } catch (AuthenticationServiceException e) {
-                System.out.println("REGISTRATION ERROR: " + e.getMessage());
-                System.out.println("Please attempt to register again.");
-            }
-        }
+        console.printUserBalance(accountService.getBalance(currentUser.getToken()));
 
     }
 
     private void sendBucks() {
         // TODO Auto-generated method stub
+        console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
+        System.out.println("Select the user you would like to transfer to: ");
+
 
     }
 
     private void viewTransferHistory() {
         // TODO Auto-generated method stub
+        console.printListOfTransfers(accountService.getTransfers(currentUser.getToken()));
 
     }
-
-    private void viewPendingRequests() {
-        // TODO Auto-generated method stub
-
-    }
-
-
 
     private void requestBucks() {
         // TODO Auto-generated method stub
 
     }
 
+    private void viewPendingRequests() {
+        // TODO Auto-generated method stub
+        console.printListOfPendingRequests(accountService.getTransfers(currentUser.getToken()));
+
+    }
+
     private void exitProgram() {
         System.exit(0);
     }
+
 
     private void registerAndLogin() {
         while (!isAuthenticated()) {

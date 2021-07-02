@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface TransferDao {
 
-    List<Transfer> listAllTransfers(String userName);
+    List<Transfer> listAllTransfers(int userId);
+
+    boolean checkTransferAmountAgainstBalance (int userIdFrom, int userIdTo, BigDecimal transferAmount);
 
     Transfer createTransferId(int userIdFrom, int userIdTo, BigDecimal transferAmount);
+
 }

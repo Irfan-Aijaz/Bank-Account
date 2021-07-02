@@ -11,7 +11,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@PreAuthorize("isAuthenticated")
+@PreAuthorize("isAuthenticated()")
 public class AccountController {
 
 //    private final TokenProvider tokenProvider;
@@ -25,7 +25,7 @@ public class AccountController {
     }
 
     @ResponseStatus(HttpStatus.FOUND)
-    @RequestMapping(value = "/account/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
     public BigDecimal getBalance(Principal principal) {
         String loggedInUserName = principal.getName();
         int loggedInUserId = userDao.findIdByUsername(loggedInUserName);
@@ -34,9 +34,9 @@ public class AccountController {
 
 
     @ResponseStatus(HttpStatus.FOUND)
-    @RequestMapping(value = "/account/users", method = RequestMethod.GET)
-    public List<Integer> listAllUsers() {
-        return accountDao.listAllUserIds();
+    @RequestMapping(path = "/account/users", method = RequestMethod.GET)
+    public List<String> listAllUsers() {
+        return accountDao.listAllUserNames();
     }
 
 

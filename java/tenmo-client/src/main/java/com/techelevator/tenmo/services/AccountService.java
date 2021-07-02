@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.TransferDTO;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 import org.springframework.http.*;
@@ -8,56 +9,72 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class AccountService {
 
     private String baseUrl;
     private RestTemplate restTemplate = new RestTemplate();
-    public static String AUTH_TOKEN = "";
 
     public AccountService(String url) {
         this.baseUrl = url;
     }
 
 
-//    private HttpEntity<String> createRequestEntity(String currentUser) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        HttpEntity<String> entity = new HttpEntity<>(currentUser, headers);
-//        return entity;
-//    }
+    public BigDecimal getBalance(String token) {
 
-    public BigDecimal viewCurrentBalance(String currentUser) throws AuthenticationServiceException {
-//        HttpEntity<String> entity = new HttpEntity(currentUser);
         try {
-            ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + "account/balance", HttpMethod.GET, makeAuthEntity(currentUser), BigDecimal.class);
+            ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + "account/balance", HttpMethod.GET, makeAuthEntity(token), BigDecimal.class);
             return response.getBody();
-        } catch(RestClientResponseException ex) {
+        } catch (RestClientResponseException ex) {
             String message = createRegisterExceptionMessage(ex);
-            throw new AuthenticationServiceException(message);
+            System.out.println(message);
         }
+
+        return BigDecimal.ZERO;
     }
+
+    public String[] getUsers(String token) {
+        try {
+            ResponseEntity<String[]> response = restTemplate.exchange(baseUrl + "account/users", HttpMethod.GET, makeAuthEntity(token), String[].class);
+            return response.getBody();
+        } catch (RestClientResponseException ex) {
+            String message = createRegisterExceptionMessage(ex);
+            System.out.println(message);
+        }
+        return null;
+    }
+
+    public TransferDTO[] getTransfers(String token) {
+        try {
+            ResponseEntity<TransferDTO[]> response = restTemplate.exchange(baseUrl + "transfer/transfer_history", HttpMethod.GET, makeAuthEntity(token), TransferDTO[].class);
+            return response.getBody();
+        } catch (RestClientResponseException ex) {
+            String message = createRegisterExceptionMessage(ex);
+            System.out.println(message);
+        }
+        return null;
+    }
+
 
     private String createRegisterExceptionMessage(RestClientResponseException ex) {
         String message = null;
         if (ex.getRawStatusCode() == 400 && ex.getResponseBodyAsString().length() == 0) {
             message = ex.getRawStatusCode() + " : {\"timestamp\":\"" + LocalDateTime.now() + "+00:00\",\"status\":400,\"error\":\"Invalid credentials\",\"message\":\"Registration failed: Invalid username or password\",\"path\":\"/register\"}";
-        }
-        else {
+        } else {
             message = ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString();
         }
         return message;
     }
 
-    @SuppressWarnings("rawtypes")
-    private HttpEntity makeAuthEntity(String currentUser) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(AUTH_TOKEN);
-        HttpEntity entity = new HttpEntity<>(currentUser, headers);
-        return entity;
-    }
 
+    private HttpEntity makeAuthEntity(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        return new HttpEntity<>(headers);
+    }
 
 
 }
