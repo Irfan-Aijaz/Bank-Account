@@ -58,6 +58,17 @@ public class AccountService {
         return null;
     }
 
+    public String createTransfer(String token, String selectedUsername) {
+        try {
+            String response = restTemplate.postForObject(baseUrl + "transfer/create_transfer", makeAuthEntity(token, selectedUsername), String.class);
+            return response;
+        } catch (RestClientResponseException ex) {
+            String message = createRegisterExceptionMessage(ex);
+            System.out.println(message);
+        }
+        return null;
+    }
+
 
     private String createRegisterExceptionMessage(RestClientResponseException ex) {
         String message = null;
@@ -76,5 +87,11 @@ public class AccountService {
         return new HttpEntity<>(headers);
     }
 
+    private HttpEntity makeAuthEntity(String token, String selectedUsername) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity entity = new HttpEntity<>(selectedUsername, headers);
+        return entity;
+    }
 
 }

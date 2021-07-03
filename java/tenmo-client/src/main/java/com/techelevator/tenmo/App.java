@@ -7,6 +7,8 @@ import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.view.ConsoleService;
 
+import java.util.Scanner;
+
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
@@ -27,6 +29,7 @@ public class App {
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private AccountService accountService;
+    private Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL));
@@ -81,7 +84,8 @@ public class App {
         // TODO Auto-generated method stub
         console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
         System.out.println("Select the user you would like to transfer to: ");
-
+        String selectedUsername = scanner.nextLine();
+        console.createSendTransfer(accountService.createTransfer(currentUser.getToken(),selectedUsername));
 
     }
 

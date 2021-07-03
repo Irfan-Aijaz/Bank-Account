@@ -5,11 +5,12 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -36,24 +37,17 @@ public class TransferController {
     }
 
 
+    @RequestMapping(value = "/transfer/create_transfer", method = RequestMethod.PUT)
+    public String createTransfer(Principal principal, @RequestBody int transferType, int transferStatus, String username, BigDecimal transferAmount) throws Exception {
+        Account fromAccount = accountDao.getAccountByUserId(userDao.findIdByUsername(principal.getName()));
+        Account toAccount = accountDao.getAccountByUserId(userDao.findIdByUsername(username));
 
-//    @RequestMapping(value = "/transfer", method = RequestMethod.PUT)
-//    public Transfer createTransfer(Principal principal) {
-//        Account fromAccount = accountDao.getAccountByUserId(userDao.findIdByUsername(principal.getName()));
-//
-//        Account toAccount = accountDao.getAccountByUserId(transfer.transferToUser);
-//
-//        return transferDao.createTransferId(loggedInUserId);
-//   //Account transfer method will check if the from account has enough $ and if yes, update the balance of both and return true
-//  //returns false if the from account did not have enough money
-//  if (fromAccount.transfer(toAccount, transfer.amount)) { //the balances on the account were updated
-//          //create a row for teh transfer in the transfer table
-//        transferDao.createTransfer(fromAccount.getAccountId(),toAccount.getAccountId),transfer.amount,Transfer.APPROVED_STATU
-//        accountDao.save (fromAccount); //save teh from account with new balance
-//        accountDao.save (toAccount);//save to the to account with the new blanace
-//
-//          else {
-//            throw new Exception("Transfer not completed. Insufficent funds.");
-//    }
+        if (transferDao.checkAgainstBalance(fromAccount.getUserId(), transferAmount)) {
+            transferDao.createTransferId(transferType, transferStatus, fromAccount.getAccountId(), toAccount.getAccountId(), transferAmount);
+            return "Transfer created.";
+        } else {
+            throw new Exception("Transfer not completed. Insufficient funds.");
 
+        }
+    }
 }

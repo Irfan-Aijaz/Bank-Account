@@ -111,7 +111,7 @@ public class ConsoleService {
     public void printListOfPendingRequests(TransferDTO[] list) {
         System.out.println("Here are your pending requests: ");
         for (TransferDTO transfer : list) {
-            if (transfer.getTransferStatusId() == 1 && transfer.getTransferTypeId() == 1) {
+            if (transfer.getTransferStatusId() == 1) {
                 System.out.println("Transfer Type: Request");
                 System.out.println("Transfer Status: Pending");
                 System.out.println("Transfer From: " + transfer.getAccountFrom());
@@ -120,5 +120,9 @@ public class ConsoleService {
                 System.out.println("----------------------");
             }
         }
+    }
+
+    public void createSendTransfer(String response){
+        System.out.println(response);
     }
 }
