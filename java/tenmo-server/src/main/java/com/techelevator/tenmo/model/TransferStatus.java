@@ -1,11 +1,10 @@
 package com.techelevator.tenmo.model;
 
-public class TransferStatusDTO {
-
+public class TransferStatus {
     private int transferId;
     private int transferStatus;
 
-    public TransferStatusDTO(int transferId, int transferStatus) {
+    public TransferStatus(int transferId, int transferStatus) {
         this.transferId = transferId;
         this.transferStatus = transferStatus;
     }

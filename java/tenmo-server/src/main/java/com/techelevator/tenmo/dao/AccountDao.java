@@ -10,7 +10,9 @@ import java.util.List;
 public interface AccountDao {
     BigDecimal getBalanceForUserId(int userId);
 
-    List<String> listAllUserNames();
+    List<User> listAllUserNames();
+
+    List<Integer> listAllAccountIds(int userId);
 
     Account getAccountByUserId(int userId);
 

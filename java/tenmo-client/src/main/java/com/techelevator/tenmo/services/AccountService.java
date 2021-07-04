@@ -1,17 +1,14 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.TransferDTO;
+import com.techelevator.tenmo.model.TransferStatusDTO;
 import com.techelevator.tenmo.model.User;
-import com.techelevator.tenmo.model.UserCredentials;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class AccountService {
 
@@ -26,7 +23,7 @@ public class AccountService {
     public BigDecimal getBalance(String token) {
 
         try {
-            ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + "account/balance", HttpMethod.GET, makeAuthEntity(token), BigDecimal.class);
+            ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + "account/user/balance", HttpMethod.GET, makeAuthEntity(token), BigDecimal.class);
             return response.getBody();
         } catch (RestClientResponseException ex) {
             String message = createRegisterExceptionMessage(ex);
@@ -36,9 +33,10 @@ public class AccountService {
         return BigDecimal.ZERO;
     }
 
-    public String[] getUsers(String token) {
+
+    public User[] getUsers(String token) {
         try {
-            ResponseEntity<String[]> response = restTemplate.exchange(baseUrl + "account/users", HttpMethod.GET, makeAuthEntity(token), String[].class);
+            ResponseEntity<User[]> response = restTemplate.exchange(baseUrl + "account/user/all_users", HttpMethod.GET, makeAuthEntity(token), User[].class);
             return response.getBody();
         } catch (RestClientResponseException ex) {
             String message = createRegisterExceptionMessage(ex);
@@ -58,15 +56,28 @@ public class AccountService {
         return null;
     }
 
-    public String createTransfer(String token, String selectedUsername) {
+    public String createTransfer(String token, int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount) {
+
+        HttpEntity entity = makeAuthEntityTransfer(token, transferType, transferStatus, userIdFrom, userIdTo, transferAmount);
         try {
-            String response = restTemplate.postForObject(baseUrl + "transfer/create_transfer", makeAuthEntity(token, selectedUsername), String.class);
-            return response;
+            return restTemplate.postForObject(baseUrl + "transfer/create_transfer", entity, String.class);
         } catch (RestClientResponseException ex) {
             String message = createRegisterExceptionMessage(ex);
             System.out.println(message);
         }
         return null;
+    }
+
+    public String updatePendingTransfer(String token, int transferId, int transferStatus) {
+        HttpEntity entity = makeAuthEntityTransferStatusUpdate(token, transferId, transferStatus);
+        try {
+            restTemplate.put(baseUrl + "transfer/update_transfer", entity);
+            return "Transfer updated.";
+        } catch (RestClientResponseException ex) {
+            String message = createRegisterExceptionMessage(ex);
+            System.out.println(message);
+        }
+        return "";
     }
 
 
@@ -87,10 +98,21 @@ public class AccountService {
         return new HttpEntity<>(headers);
     }
 
-    private HttpEntity makeAuthEntity(String token, String selectedUsername) {
+    private HttpEntity makeAuthEntityTransfer(String token, int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount) {
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
-        HttpEntity entity = new HttpEntity<>(selectedUsername, headers);
+        TransferDTO transfer = new TransferDTO(transferType, transferStatus, userIdFrom, userIdTo, transferAmount);
+        HttpEntity entity = new HttpEntity<>(transfer, headers);
+        return entity;
+    }
+
+    private HttpEntity makeAuthEntityTransferStatusUpdate(String token, int transferId, int transferStatus) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        TransferStatusDTO transferStatusUpdate = new TransferStatusDTO(transferId, transferStatus);
+        HttpEntity entity = new HttpEntity<>(transferStatusUpdate, headers);
         return entity;
     }
 

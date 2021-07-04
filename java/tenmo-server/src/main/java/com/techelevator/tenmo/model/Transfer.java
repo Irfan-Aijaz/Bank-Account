@@ -4,23 +4,44 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-
+    private int transferId;
     private int transferTypeId;
     private int transferStatusId;
     private int accountFrom;
+    private String usernameFrom;
     private int accountTo;
+    private String usernameTo;
     private BigDecimal amount;
 
 
-    public Transfer () {
-
-    }
-    public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
+    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
+        this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.amount = amount;
+    }
+
+    public Transfer() {
+
+    }
+
+    public Transfer(int transferId, int transferTypeId, int transferStatusId, String usernameFrom, String usernameTo, BigDecimal amount) {
+        this.transferId = transferId;
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.usernameFrom = usernameFrom;
+        this.usernameTo = usernameTo;
+        this.amount = amount;
+    }
+
+    public void setTransferId(int transferId) {
+        this.transferId = transferId;
+    }
+
+    public int getTransferId() {
+        return transferId;
     }
 
     public int getTransferTypeId() {
@@ -63,9 +84,20 @@ public class Transfer {
         this.amount = amount;
     }
 
-//    public int transferToUser {
-//        return 1;
-//    }
 
+    public String getUsernameFrom() {
+        return usernameFrom;
+    }
 
+    public void setUsernameFrom(String usernameFrom) {
+        this.usernameFrom = usernameFrom;
+    }
+
+    public String getUsernameTo() {
+        return usernameTo;
+    }
+
+    public void setUsernameTo(String usernameTo) {
+        this.usernameTo = usernameTo;
+    }
 }

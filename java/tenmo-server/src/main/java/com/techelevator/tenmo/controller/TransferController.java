@@ -5,6 +5,7 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,6 @@ public class TransferController {
     private UserDao userDao;
     private TransferDao transferDao;
     private AccountDao accountDao;
-    private Transfer transfer;
 
     public TransferController(UserDao userDao, TransferDao transferDao, AccountDao accountDao) {
         this.userDao = userDao;
@@ -37,17 +37,49 @@ public class TransferController {
     }
 
 
-    @RequestMapping(value = "/transfer/create_transfer", method = RequestMethod.PUT)
-    public String createTransfer(Principal principal, @RequestBody int transferType, int transferStatus, String username, BigDecimal transferAmount) throws Exception {
-        Account fromAccount = accountDao.getAccountByUserId(userDao.findIdByUsername(principal.getName()));
-        Account toAccount = accountDao.getAccountByUserId(userDao.findIdByUsername(username));
+    @RequestMapping(value = "/transfer/create_transfer", method = RequestMethod.POST)
+    public String createTransfer(Principal principal, @RequestBody Transfer transfer) throws Exception {
+        int userIdFrom = transfer.getAccountFrom();
+        int userIdTo = transfer.getAccountTo();
+        int transferType = transfer.getTransferTypeId();
+        int transferStatus = transfer.getTransferStatusId();
+        BigDecimal transferAmount = transfer.getAmount();
+        Account fromAccount = accountDao.getAccountByUserId(userIdFrom);
+        Account toAccount = accountDao.getAccountByUserId(userIdTo);
 
-        if (transferDao.checkAgainstBalance(fromAccount.getUserId(), transferAmount)) {
+        if (transferType == 2) {
+            if (transferDao.checkAgainstBalance(fromAccount.getUserId(), transferAmount)) {
+                transferDao.createTransferId(transferType, transferStatus, fromAccount.getAccountId(), toAccount.getAccountId(), transferAmount);
+                transferDao.updateAccounts(fromAccount.getUserId(), toAccount.getUserId(), transferAmount);
+                return "Success! Transfer created. Money transferred.";
+            } else {
+                throw new Exception("Transfer not completed. Insufficient funds.");
+            }
+        } else if (transferType == 1) {
             transferDao.createTransferId(transferType, transferStatus, fromAccount.getAccountId(), toAccount.getAccountId(), transferAmount);
-            return "Transfer created.";
+            return "Transfer created. Status is pending.";
         } else {
-            throw new Exception("Transfer not completed. Insufficient funds.");
-
+            throw new Exception("Transfer not created.");
         }
+    }
+
+    @RequestMapping(value = "/transfer/update_transfer", method = RequestMethod.PUT)
+    public void updateTransfer(Principal principal, @RequestBody TransferStatus transferStatus) throws Exception {
+        int transferId = transferStatus.getTransferId();
+        int transferStatusId = transferStatus.getTransferStatus();
+
+        Transfer retrievedTransfer = transferDao.retrieveTransfer(transferId);
+
+        int accountFrom = retrievedTransfer.getAccountFrom();
+        int accountTo = retrievedTransfer.getAccountTo();
+        BigDecimal transferAmount = retrievedTransfer.getAmount();
+
+        if (transferStatusId == 2) {
+            if (transferDao.checkAgainstBalance(accountFrom, transferAmount)) {
+                transferDao.updateAccounts(accountFrom, accountTo, transferAmount);
+            }
+        }
+
+        transferDao.updateTransfer(transferId, transferStatusId);
     }
 }

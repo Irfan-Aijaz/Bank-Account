@@ -20,47 +20,67 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public boolean checkAgainstBalance(int userIdFrom, BigDecimal transferAmount) {
-        String sql1 = "SELECT balance FROM accounts WHERE user_id;";
+        String sql1 = "SELECT balance FROM accounts WHERE user_id = ?;";
         SqlRowSet results1 = jdbcTemplate.queryForRowSet(sql1, userIdFrom);
-
-        return transferAmount.compareTo(results1.getBigDecimal("balance")) >= 0;
+        if (results1.next()) {
+            return results1.getBigDecimal("balance").compareTo(transferAmount) >= 0;
+        }
+        return false;
     }
 
 
     @Override
-    public Transfer createTransferId(int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount) {
-        Transfer transfer = new Transfer();
+    public void createTransferId(int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount) {
 
-        String sql2 = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+        String sql1 = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
                 "VALUES (?, ?, ?, ?, ?);";
-        SqlRowSet results2 = jdbcTemplate.queryForRowSet(sql2, transferType, transferStatus, userIdFrom, userIdTo, transferAmount);
+        jdbcTemplate.update(sql1, transferType, transferStatus, userIdFrom, userIdTo, transferAmount);
 
-        if (results2.next()) {
-            transfer = mapRowToTransfer(results2);
-        }
-        return transfer;
     }
 
     @Override
     public void updateAccounts(int userIdFrom, int userIdTo, BigDecimal transferAmount) {
         String sqlDecrease = "UPDATE accounts SET balance = balance - ? WHERE user_id = ?; ";
-        SqlRowSet resultDecrease = jdbcTemplate.queryForRowSet(sqlDecrease, transferAmount, userIdFrom);
+        jdbcTemplate.update(sqlDecrease, transferAmount, userIdFrom);
 
         String sqlIncrease = "UPDATE accounts SET balance = balance + ? WHERE user_id = ?; ";
-        SqlRowSet resultIncrease = jdbcTemplate.queryForRowSet(sqlIncrease, transferAmount, userIdTo);
+        jdbcTemplate.update(sqlIncrease, transferAmount, userIdTo);
+    }
+
+    @Override
+    public void updateTransfer(int transferId, int transferStatus) {
+        String sqlUpdateTransfer = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?; ";
+        jdbcTemplate.update(sqlUpdateTransfer, transferStatus, transferId);
+    }
+
+    public Transfer retrieveTransfer(int transferId) {
+        Transfer retrievedTransfer = new Transfer();
+        String sql = "Select transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfers " +
+                "WHERE transfer_id = ?; ";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
+
+        if (result.next()) {
+            retrievedTransfer = mapRowToTransferTransferId(result);
+        }
+
+        return retrievedTransfer;
     }
 
     @Override
     public List<Transfer> listAllTransfers(int userID) {
         List<Transfer> listOfTransfers = new ArrayList<>();
-        String sql = "SELECT transfer_type_id, transfer_status_id, account_from, account_to, amount\n" +
-                "FROM transfers\n" +
-                "INNER JOIN accounts ON ((account_from = account_id) OR (account_to = account_id))  \n" +
-                "WHERE user_id = ?;";
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, uf.username AS from_user, ut.username AS to_user, amount \n" +
+                "FROM transfers \n" +
+                "INNER JOIN accounts AS a_f ON (account_from = a_f.account_id) \n" +
+                "INNER JOIN accounts AS a_t ON (account_to = a_t.account_id) \n" +
+                "INNER JOIN users AS uf ON a_f.user_id = uf.user_id \n" +
+                "INNER JOIN users AS ut ON a_t.user_id = ut.user_id \n" +
+                "WHERE a_f.user_id = ? OR a_t.user_id = ?;";
 
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID, userID);
         while (results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
+            Transfer transfer = mapRowToTransferUserName(results);
             listOfTransfers.add(transfer);
         }
 
@@ -68,8 +88,20 @@ public class JdbcTransferDao implements TransferDao {
     }
 
 
-    private Transfer mapRowToTransfer(SqlRowSet s) {
+    private Transfer mapRowToTransferUserName(SqlRowSet s) {
         Transfer transfer = new Transfer();
+        transfer.setTransferId(s.getInt("transfer_id"));
+        transfer.setTransferTypeId(s.getInt("transfer_type_id"));
+        transfer.setTransferStatusId(s.getInt("transfer_status_id"));
+        transfer.setUsernameFrom(s.getString("from_user"));
+        transfer.setUsernameTo(s.getString("to_user"));
+        transfer.setAmount(s.getBigDecimal("amount"));
+        return transfer;
+    }
+
+    private Transfer mapRowToTransferTransferId(SqlRowSet s) {
+        Transfer transfer = new Transfer();
+        transfer.setTransferId(s.getInt("transfer_id"));
         transfer.setTransferTypeId(s.getInt("transfer_type_id"));
         transfer.setTransferStatusId(s.getInt("transfer_status_id"));
         transfer.setAccountFrom(s.getInt("account_from"));
@@ -77,5 +109,6 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setAmount(s.getBigDecimal("amount"));
         return transfer;
     }
+
 
 }

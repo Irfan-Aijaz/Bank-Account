@@ -7,6 +7,7 @@ import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.view.ConsoleService;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class App {
@@ -83,9 +84,11 @@ public class App {
     private void sendBucks() {
         // TODO Auto-generated method stub
         console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
-        System.out.println("Select the user you would like to transfer to: ");
-        String selectedUsername = scanner.nextLine();
-        console.createSendTransfer(accountService.createTransfer(currentUser.getToken(),selectedUsername));
+        System.out.println("Select the user ID you would like to transfer to: ");
+        int selectedId = Integer.parseInt(scanner.nextLine());
+        System.out.println("How much would you like to transfer? ");
+        BigDecimal amountToTransfer = new BigDecimal(scanner.nextLine());
+        console.createSendTransfer(accountService.createTransfer(currentUser.getToken(), 2, 2, currentUser.getUser().getId(), selectedId, amountToTransfer));
 
     }
 
@@ -97,13 +100,36 @@ public class App {
 
     private void requestBucks() {
         // TODO Auto-generated method stub
+        console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
+        System.out.println("Select the user ID you would like to request from: ");
+        int selectedId = Integer.parseInt(scanner.nextLine());
+        System.out.println("How much would you like to request? ");
+        BigDecimal amountToTransfer = new BigDecimal(scanner.nextLine());
+        console.createSendTransfer(accountService.createTransfer(currentUser.getToken(), 1, 1, selectedId, currentUser.getUser().getId(), amountToTransfer));
 
     }
 
     private void viewPendingRequests() {
         // TODO Auto-generated method stub
-        console.printListOfPendingRequests(accountService.getTransfers(currentUser.getToken()));
-
+        int transferRequestOption = console.printListOfPendingRequests(accountService.getTransfers(currentUser.getToken()), currentUser.getUser().getUsername());
+        if (transferRequestOption > 0) {
+            System.out.println("If you would like to approve the request, type 2. \n" +
+                    "To reject the request, type 3. To cancel, type 0. ");
+            int transferStatus = Integer.parseInt(scanner.nextLine());
+            if (transferStatus == 2) {
+                console.updateTransfer(accountService.updatePendingTransfer(currentUser.getToken(), transferRequestOption, transferStatus));
+                System.out.println("Request accepted. Transfer complete. ");
+            } else if (transferStatus == 3) {
+                console.updateTransfer(accountService.updatePendingTransfer(currentUser.getToken(), transferRequestOption, transferStatus));
+                System.out.println("Request rejected. ");
+            } else {
+                System.out.println("Canceled.");
+            }
+        } else if (transferRequestOption == 0) {
+            System.out.println("Canceled.");
+        } else {
+            System.out.println("No pending requests.");
+        }
     }
 
     private void exitProgram() {

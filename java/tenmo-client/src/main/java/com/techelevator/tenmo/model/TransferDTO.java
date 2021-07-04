@@ -3,19 +3,39 @@ package com.techelevator.tenmo.model;
 import java.math.BigDecimal;
 
 public class TransferDTO {
+    private int transferId;
     private int transferTypeId;
     private int transferStatusId;
     private int accountFrom;
+    private String usernameFrom;
     private int accountTo;
+    private String usernameTo;
     private BigDecimal amount;
 
-//    public TransferDTO (){
-//        int[] parts = .split(",");
-//        transferTypeId = parts[0];
-//        transferStatusId = parts[1];
-//        accountFrom = parts[2];
-//        accountTo = parts[3];
-//    }
+    public TransferDTO (int transferId, int transferTypeId, int transferStatusId, String usernameFrom, String usernameTo, BigDecimal amount) {
+        this.transferId = transferId;
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.usernameFrom = usernameFrom;
+        this.usernameTo = usernameTo;
+        this.amount = amount;
+    }
+
+    public TransferDTO (int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.amount = amount;
+    }
+
+    public TransferDTO () {
+
+    }
+
+    public int getTransferId() {
+        return transferId;
+    }
 
     public int getTransferTypeId() {
         return transferTypeId;
@@ -55,5 +75,21 @@ public class TransferDTO {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getUsernameFrom() {
+        return usernameFrom;
+    }
+
+    public void setUsernameFrom(String usernameFrom) {
+        this.usernameFrom = usernameFrom;
+    }
+
+    public String getUsernameTo() {
+        return usernameTo;
+    }
+
+    public void setUsernameTo(String usernameTo) {
+        this.usernameTo = usernameTo;
     }
 }

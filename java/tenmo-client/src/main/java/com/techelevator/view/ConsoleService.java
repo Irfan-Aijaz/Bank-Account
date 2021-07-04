@@ -2,6 +2,8 @@ package com.techelevator.view;
 
 
 import com.techelevator.tenmo.model.TransferDTO;
+import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.services.AccountService;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -82,47 +84,70 @@ public class ConsoleService {
         System.out.println("Your current balance is: " + balance);
     }
 
-    public void printListOfUsers(String[] list) {
+    public void printListOfUsers(User[] list) {
         System.out.println("Here are the available users: ");
-        for (String transfer : list) {
-            System.out.println(transfer);
+        for (User user : list) {
+            System.out.println(user.getId() + " " + user.getUsername());
             System.out.println("----------------------");
         }
     }
 
     public void printListOfTransfers(TransferDTO[] list) {
-        System.out.println("Here is your transfer history: ");
-        for (TransferDTO transfer : list) {
-            if (transfer.getTransferStatusId() != 1) {
-                System.out.println("Transfer Type: " + transfer.getTransferTypeId());
-                if (transfer.getTransferStatusId()==2) {
-					System.out.println("Transfer Status: Approved");
-				} else if (transfer.getTransferStatusId()==3) {
-					System.out.println("Transfer Status: Rejected");
-				}
-                System.out.println("Transfer From: " + transfer.getAccountFrom());
-                System.out.println("Transfer To: " + transfer.getAccountTo());
-                System.out.println("Transfer Amount: " + transfer.getAmount());
-                System.out.println("----------------------");
+        if (list.length != 0) {
+            System.out.println("Here is your transfer history (non pending): ");
+            for (TransferDTO transfer : list) {
+                if (transfer.getTransferStatusId() != 1) {
+                    System.out.println("Transfer ID: " + transfer.getTransferId());
+                    if (transfer.getTransferTypeId() == 1) {
+                        System.out.println("Transfer Type: Request");
+                    } else if (transfer.getTransferTypeId() == 2) {
+                        System.out.println("Transfer Type: Send");
+                    }
+                    if (transfer.getTransferStatusId() == 2) {
+                        System.out.println("Transfer Status: Approved");
+                    } else if (transfer.getTransferStatusId() == 3) {
+                        System.out.println("Transfer Status: Rejected");
+                    }
+                    System.out.println("Transfer From: " + transfer.getUsernameFrom());
+                    System.out.println("Transfer To: " + transfer.getUsernameTo());
+                    System.out.println("Transfer Amount: " + transfer.getAmount());
+                    System.out.println("----------------------");
+                }
             }
+        } else {
+            System.out.print("No transfer history");
         }
     }
 
-    public void printListOfPendingRequests(TransferDTO[] list) {
-        System.out.println("Here are your pending requests: ");
+    public int printListOfPendingRequests(TransferDTO[] list, String user) {
+        System.out.println("Here are your pending requests:  \n");
+        int selectedTransferId = -1;
         for (TransferDTO transfer : list) {
-            if (transfer.getTransferStatusId() == 1) {
+            if (transfer.getTransferStatusId() == 1 && user.equals(transfer.getUsernameFrom())) {
+                System.out.println("Transfer ID: " + transfer.getTransferId());
                 System.out.println("Transfer Type: Request");
                 System.out.println("Transfer Status: Pending");
-                System.out.println("Transfer From: " + transfer.getAccountFrom());
-                System.out.println("Transfer To: " + transfer.getAccountTo());
+                System.out.println("Transfer From: " + transfer.getUsernameFrom());
+                System.out.println("Transfer To: " + transfer.getUsernameTo());
                 System.out.println("Transfer Amount: " + transfer.getAmount());
                 System.out.println("----------------------");
             }
         }
+        if (list.length > 0) {
+            System.out.println("Select the transfer ID you would like to approve/reject: \n" +
+                    "To cancel, enter 0.");
+            selectedTransferId = Integer.parseInt(in.nextLine());
+        }
+        return selectedTransferId;
     }
 
-    public void createSendTransfer(String response){
+    public void createSendTransfer(String response) {
         System.out.println(response);
+        System.out.println("----------------------");
+    }
+
+    public void updateTransfer(String response) {
+        System.out.println(response);
+        System.out.println("----------------------");
     }
 }

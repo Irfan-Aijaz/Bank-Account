@@ -2,6 +2,8 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ public class AccountController {
     }
 
     @ResponseStatus(HttpStatus.FOUND)
-    @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/account/user/balance", method = RequestMethod.GET)
     public BigDecimal getBalance(Principal principal) {
         String loggedInUserName = principal.getName();
         int loggedInUserId = userDao.findIdByUsername(loggedInUserName);
@@ -34,10 +36,17 @@ public class AccountController {
 
 
     @ResponseStatus(HttpStatus.FOUND)
-    @RequestMapping(path = "/account/users", method = RequestMethod.GET)
-    public List<String> listAllUsers() {
+    @RequestMapping(path = "/account/user/all_users", method = RequestMethod.GET)
+    public List<User> listAllUsers() {
         return accountDao.listAllUserNames();
     }
 
+
+    @RequestMapping(path = "/account/user/account_info", method = RequestMethod.GET)
+    public List<Integer> listAccountInfo(Principal principal) {
+        String loggedInUserName = principal.getName();
+        int loggedInUserId = userDao.findIdByUsername(loggedInUserName);
+        return accountDao.listAllAccountIds(loggedInUserId);
+    }
 
 }

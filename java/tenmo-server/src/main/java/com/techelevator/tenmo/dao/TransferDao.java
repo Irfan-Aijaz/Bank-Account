@@ -9,10 +9,13 @@ public interface TransferDao {
 
     List<Transfer> listAllTransfers(int userId);
 
-    boolean checkAgainstBalance (int userIdFrom, BigDecimal transferAmount);
+    boolean checkAgainstBalance(int userIdFrom, BigDecimal transferAmount);
 
-    Transfer createTransferId(int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount);
+    void createTransferId(int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount);
 
-    void updateAccounts (int userIdFrom, int userIdTo, BigDecimal transferAmount);
+    void updateAccounts(int userIdFrom, int userIdTo, BigDecimal transferAmount);
 
+    void updateTransfer(int transferId, int transferStatus);
+
+    Transfer retrieveTransfer(int transferId);
 }

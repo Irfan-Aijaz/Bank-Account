@@ -33,21 +33,34 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<String> listAllUserNames() {
-        List<String> allUsers = new ArrayList<String>();
-        String sql = "SELECT username FROM users;";
+    public List<User> listAllUserNames() {
+        List<User> allUsers = new ArrayList<User>();
+        String sql = "SELECT user_id, username FROM users;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while (results.next()) {
-            allUsers.add(results.getString("username"));
+            allUsers.add(mapRowToUser(results));
         }
 
         return allUsers;
     }
 
     @Override
+    public List<Integer> listAllAccountIds(int userId) {
+        List<Integer> allAccountIds = new ArrayList<Integer>();
+        String sql = "SELECT account_id FROM accounts " +
+                "WHERE user_id = ? ;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+        while (results.next()) {
+            allAccountIds.add(results.getInt("account_id"));
+        }
+
+        return allAccountIds;
+    }
+
+    @Override
     public Account getAccountByUserId (int userId) {
         Account account = new Account();
-        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE userid = ?;";
+        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE user_id = ?;";
         SqlRowSet username = jdbcTemplate.queryForRowSet(sql, userId);
         if (username.next()) {
             account = mapRowToAccount(username);
@@ -61,7 +74,13 @@ public class JdbcAccountDao implements AccountDao {
         account.setAccountId(s.getInt("account_id"));
         account.setUserId(s.getInt("user_id"));
         account.setAmount(s.getBigDecimal("balance"));
-
         return account;
+    }
+
+    private User mapRowToUser(SqlRowSet s) {
+        User user = new User();
+        user.setId(s.getLong("user_id"));
+        user.setUsername(s.getString("username"));
+        return user;
     }
 }
