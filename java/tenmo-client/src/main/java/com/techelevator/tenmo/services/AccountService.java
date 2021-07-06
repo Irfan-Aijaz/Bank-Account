@@ -57,7 +57,7 @@ public class AccountService {
     }
 
     public String createTransfer(String token, int transferType, int transferStatus, int userIdFrom, int userIdTo, BigDecimal transferAmount) {
-
+        // takes all parts of transfer to create one for database
         HttpEntity entity = makeAuthEntityTransfer(token, transferType, transferStatus, userIdFrom, userIdTo, transferAmount);
         try {
             return restTemplate.postForObject(baseUrl + "transfer/create_transfer", entity, String.class);
@@ -69,6 +69,7 @@ public class AccountService {
     }
 
     public String updatePendingTransfer(String token, int transferId, int transferStatus) {
+        // takes transfer ID and updates status
         HttpEntity entity = makeAuthEntityTransferStatusUpdate(token, transferId, transferStatus);
         try {
             restTemplate.put(baseUrl + "transfer/update_transfer", entity);

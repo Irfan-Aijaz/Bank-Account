@@ -38,6 +38,7 @@ public class App {
     }
 
     public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService) {
+       //where we declare account svc, console svc, auth svc
         this.console = console;
         this.authenticationService = authenticationService;
         this.accountService = accountService;
@@ -77,12 +78,14 @@ public class App {
 
     private void viewCurrentBalance() {
         // TODO Auto-generated method stub
+        // use token login info to view balance
         console.printUserBalance(accountService.getBalance(currentUser.getToken()));
 
     }
 
     private void sendBucks() {
         // TODO Auto-generated method stub
+        // use token login to view Users to transfer to and amount
         console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
         System.out.println("Select the user ID you would like to transfer to: ");
         int selectedId = Integer.parseInt(scanner.nextLine());
@@ -94,12 +97,14 @@ public class App {
 
     private void viewTransferHistory() {
         // TODO Auto-generated method stub
+        // use token login to view previous transfers
         console.printListOfTransfers(accountService.getTransfers(currentUser.getToken()));
 
     }
 
     private void requestBucks() {
         // TODO Auto-generated method stub
+        // use token login to view who you can request from and amount
         console.printListOfUsers(accountService.getUsers(currentUser.getToken()));
         System.out.println("Select the user ID you would like to request from: ");
         int selectedId = Integer.parseInt(scanner.nextLine());
@@ -111,6 +116,7 @@ public class App {
 
     private void viewPendingRequests() {
         // TODO Auto-generated method stub
+        // use token login to see and accept / reject pending requests
         int transferRequestOption = console.printListOfPendingRequests(accountService.getTransfers(currentUser.getToken()), currentUser.getUser().getUsername());
         if (transferRequestOption > 0) {
             System.out.println("If you would like to approve the request, type 2. \n" +

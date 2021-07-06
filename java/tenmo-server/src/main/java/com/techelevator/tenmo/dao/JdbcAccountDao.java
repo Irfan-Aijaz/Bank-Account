@@ -45,19 +45,6 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Integer> listAllAccountIds(int userId) {
-        List<Integer> allAccountIds = new ArrayList<Integer>();
-        String sql = "SELECT account_id FROM accounts " +
-                "WHERE user_id = ? ;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
-        while (results.next()) {
-            allAccountIds.add(results.getInt("account_id"));
-        }
-
-        return allAccountIds;
-    }
-
-    @Override
     public Account getAccountByUserId (int userId) {
         Account account = new Account();
         String sql = "SELECT account_id, user_id, balance FROM accounts WHERE user_id = ?;";

@@ -69,6 +69,7 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public List<Transfer> listAllTransfers(int userID) {
+        // retrieves all transfers of a user where they can be accountFrom and accountTo
         List<Transfer> listOfTransfers = new ArrayList<>();
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, uf.username AS from_user, ut.username AS to_user, amount \n" +
                 "FROM transfers \n" +
@@ -87,7 +88,8 @@ public class JdbcTransferDao implements TransferDao {
         return listOfTransfers;
     }
 
-
+    // two different map rows: one for retrieving transfer with userName and
+    // one for creating transfer with accountID
     private Transfer mapRowToTransferUserName(SqlRowSet s) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(s.getInt("transfer_id"));

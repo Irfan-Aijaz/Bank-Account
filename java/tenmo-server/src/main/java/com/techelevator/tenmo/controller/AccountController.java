@@ -41,12 +41,4 @@ public class AccountController {
         return accountDao.listAllUserNames();
     }
 
-
-    @RequestMapping(path = "/account/user/account_info", method = RequestMethod.GET)
-    public List<Integer> listAccountInfo(Principal principal) {
-        String loggedInUserName = principal.getName();
-        int loggedInUserId = userDao.findIdByUsername(loggedInUserName);
-        return accountDao.listAllAccountIds(loggedInUserId);
-    }
-
 }

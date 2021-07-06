@@ -38,6 +38,7 @@ public class TransferController {
 
 
     @RequestMapping(value = "/transfer/create_transfer", method = RequestMethod.POST)
+    // takes transfer info from post and makes transfer in database
     public String createTransfer(Principal principal, @RequestBody Transfer transfer) throws Exception {
         int userIdFrom = transfer.getAccountFrom();
         int userIdTo = transfer.getAccountTo();
@@ -47,6 +48,7 @@ public class TransferController {
         Account fromAccount = accountDao.getAccountByUserId(userIdFrom);
         Account toAccount = accountDao.getAccountByUserId(userIdTo);
 
+        // if transfer is a send, checks balance of sending to make sure they have enough $$
         if (transferType == 2) {
             if (transferDao.checkAgainstBalance(fromAccount.getUserId(), transferAmount)) {
                 transferDao.createTransferId(transferType, transferStatus, fromAccount.getAccountId(), toAccount.getAccountId(), transferAmount);
@@ -55,6 +57,7 @@ public class TransferController {
             } else {
                 throw new Exception("Transfer not completed. Insufficient funds.");
             }
+            // if request, status is pending, accounts not updated until approved
         } else if (transferType == 1) {
             transferDao.createTransferId(transferType, transferStatus, fromAccount.getAccountId(), toAccount.getAccountId(), transferAmount);
             return "Transfer created. Status is pending.";
@@ -73,13 +76,14 @@ public class TransferController {
         int accountFrom = retrievedTransfer.getAccountFrom();
         int accountTo = retrievedTransfer.getAccountTo();
         BigDecimal transferAmount = retrievedTransfer.getAmount();
-
+        // if request approved, checks to see if sending has enough $$ before approving,otherwise rejects
         if (transferStatusId == 2) {
             if (transferDao.checkAgainstBalance(accountFrom, transferAmount)) {
                 transferDao.updateAccounts(accountFrom, accountTo, transferAmount);
+            } else {
+                transferStatus.setTransferStatus(3);
             }
         }
-
         transferDao.updateTransfer(transferId, transferStatusId);
     }
 }

@@ -120,6 +120,7 @@ public class ConsoleService {
     }
 
     public int printListOfPendingRequests(TransferDTO[] list, String user) {
+        // prints all pending requests where login user is fromAccount
         System.out.println("Here are your pending requests:  \n");
         int selectedTransferId = -1;
         for (TransferDTO transfer : list) {
